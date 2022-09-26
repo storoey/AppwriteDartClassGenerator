@@ -1,8 +1,9 @@
-import { mkdir, readdir, stat } from 'fs/promises';
+import { mkdir, readdir, readFile, stat } from 'fs/promises';
+import { AppwriteSchema } from '../models';
 import { logger } from './logger';
 
 const File = () => {
-  const ensureFolderExists = async (directory: string) => {
+  const ensureFolderExists = async (directory: string): Promise<void> => {
     try {
       await stat(directory);
     } catch {
@@ -16,8 +17,15 @@ const File = () => {
     return await readdir(directory);
   };
 
+  const parseFile = async (filePath: string): Promise<AppwriteSchema> => {
+    const raw: string = await readFile(filePath, { encoding: 'utf-8' });
+    const json: AppwriteSchema = JSON.parse(raw);
+    return json;
+  };
+
   return {
     listDir,
+    parseFile,
   };
 };
 

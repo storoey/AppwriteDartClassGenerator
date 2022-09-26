@@ -60,5 +60,13 @@
       "default": null
     }
   ],
-  "indexes": []
+  "indexes": [
+    {
+      "key": "ft_displayName",
+      "type": "fulltext",
+      "status": "available",
+      "attributes": ["displayName"],
+      "orders": ["ASC"]
+    }
+  ]
 }
