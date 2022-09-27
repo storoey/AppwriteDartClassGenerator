@@ -22,9 +22,26 @@ const _sortByRequired = (a: AppwriteAttribute, b: AppwriteAttribute) => {
   return 0;
 };
 
+const _sortByKey = (a: AppwriteAttribute, b: AppwriteAttribute) => {
+  return a.key.localeCompare(b.key);
+};
+
+const DartAttribute = () => {};
+
 export const Dart = (schema: AppwriteSchema): string => {
   const _className = str.upperFirstLetter(schema.name);
-  const _attributes = schema.attributes.map((attribute) => {
+  let _attributes = schema.attributes;
+
+  if (config.groupRequired) {
+    _attributes = schema.attributes.sort(_sortByRequired);
+
+    _attributes = [
+      ..._attributes.filter((x) => x.required).sort(_sortByKey),
+      ..._attributes.filter((x) => !x.required).sort(_sortByKey),
+    ];
+  }
+
+  _attributes = _attributes.map((attribute) => {
     const lowered = str.lowerFirstLetter(attribute.key);
     const underscoreSplit = lowered.split('_');
     for (let i = 1; i < underscoreSplit.length; i++) {
@@ -36,9 +53,7 @@ export const Dart = (schema: AppwriteSchema): string => {
     return attribute;
   });
 
-  const _properties = (
-    config.groupRequired ? _attributes.sort(_sortByRequired) : _attributes
-  )
+  const _properties = _attributes
     .filter((attribute) => {
       if (!_types.hasOwnProperty(attribute.type)) {
         logger.error(
@@ -50,23 +65,51 @@ export const Dart = (schema: AppwriteSchema): string => {
       return true;
     })
     .map((attribute) => {
+      const final = config.finalProperties ? 'final ' : '';
       const type = _types[attribute.type];
       const required = attribute.required ? '' : '?';
 
-      return `\t${type}${required} ${attribute.key};`;
+      return `\t${final}${type}${required} ${attribute.key};`;
     })
     .join('\n');
 
   const _constructor = [
     `\tconst ${_className} ({`,
-    ...(config.groupRequired
-      ? _attributes.sort(_sortByRequired)
-      : _attributes
-    ).map((attribute) => {
-      return '\t\t,';
+    ..._attributes.map((attribute) => {
+      const required = attribute.required ? 'required ' : '';
+
+      return `\t\t${required}this.${attribute.key},`;
     }),
     '\t});',
   ].join('\n');
 
-  return _constructor;
+  const _copyWith = (
+    config.includeCopyWith
+      ? [
+          `\t${_className} copyWith({`,
+          ..._attributes.map((attribute) => {
+            const type = _types[attribute.type];
+
+            return `\t\t${type}? ${attribute.key},`;
+          }),
+          '\t}) {',
+          `\t\treturn ${_className}(`,
+          ..._attributes.map((attribute) => {
+            return `\t\t\t${attribute.key}: ${attribute.key} ?? this.${attribute.key},`;
+          }),
+          '\t\t);',
+          '\t}',
+        ]
+      : []
+  ).join('\n');
+
+  return [
+    `class ${_className} {`,
+    _properties,
+    '',
+    _constructor,
+    '',
+    _copyWith,
+    '}',
+  ].join('\n');
 };

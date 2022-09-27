@@ -3,4 +3,5 @@ export const config = {
   outputDirectory: './output',
   includeCopyWith: true,
   groupRequired: true,
+  finalProperties: true,
 };

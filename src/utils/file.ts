@@ -1,4 +1,5 @@
-import { mkdir, readdir, readFile, stat } from 'fs/promises';
+import { mkdir, readdir, readFile, stat, writeFile } from 'fs/promises';
+import { join } from 'path';
 import { AppwriteSchema } from '../models';
 import { logger } from './logger';
 
@@ -23,9 +24,19 @@ const File = () => {
     return json;
   };
 
+  const writeClassFile = async (
+    filePath: string,
+    fileName: string,
+    content: string
+  ): Promise<void> => {
+    await ensureFolderExists(filePath);
+    await writeFile(join(filePath, fileName), content);
+  };
+
   return {
     listDir,
     parseFile,
+    writeClassFile,
   };
 };
 
