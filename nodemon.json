@@ -1,6 +1,6 @@
 {
   "env": {},
-  "watch": ["src"],
+  "watch": ["src", ".env"],
   "ext": "ts",
   "ignore": ["src/**/*.spec.ts"],
   "exec": "yarn tsc && node dist/main.js"

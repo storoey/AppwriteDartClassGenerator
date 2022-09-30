@@ -26,7 +26,7 @@ const _sortByKey = (a: AppwriteAttribute, b: AppwriteAttribute) => {
   return a.key.localeCompare(b.key);
 };
 
-const DartAttribute = () => {};
+const DartAttribute = () => { };
 
 export const Dart = (schema: AppwriteSchema): string => {
   const _className = str.upperFirstLetter(schema.name);
@@ -86,20 +86,20 @@ export const Dart = (schema: AppwriteSchema): string => {
   const _copyWith = (
     config.includeCopyWith
       ? [
-          `\t${_className} copyWith({`,
-          ..._attributes.map((attribute) => {
-            const type = _types[attribute.type];
+        `\t${_className} copyWith({`,
+        ..._attributes.map((attribute) => {
+          const type = _types[attribute.type];
 
-            return `\t\t${type}? ${attribute.key},`;
-          }),
-          '\t}) {',
-          `\t\treturn ${_className}(`,
-          ..._attributes.map((attribute) => {
-            return `\t\t\t${attribute.key}: ${attribute.key} ?? this.${attribute.key},`;
-          }),
-          '\t\t);',
-          '\t}',
-        ]
+          return `\t\t${type}? ${attribute.key},`;
+        }),
+        '\t}) {',
+        `\t\treturn ${_className}(`,
+        ..._attributes.map((attribute) => {
+          return `\t\t\t${attribute.key}: ${attribute.key} ?? this.${attribute.key},`;
+        }),
+        '\t\t);',
+        '\t}',
+      ]
       : []
   ).join('\n');
 

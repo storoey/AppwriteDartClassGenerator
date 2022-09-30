@@ -9,7 +9,7 @@ const File = () => {
       await stat(directory);
     } catch {
       logger.warning(`[${directory}] Could not find folder. Creating...`);
-      await mkdir(directory);
+      await mkdir(directory, { recursive: true });
     }
   };
 
@@ -37,6 +37,7 @@ const File = () => {
     listDir,
     parseFile,
     writeClassFile,
+    ensureFolderExists,
   };
 };
 
